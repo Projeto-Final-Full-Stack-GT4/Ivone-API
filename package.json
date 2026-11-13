@@ -1,13 +1,15 @@
 {
   "name": "ivone-api",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "API REST da loja Ivone Beauty com Express, Sequelize e MySQL",
+  "main": "app.js",
   "scripts": {
     "test": "jest",
     "dev": "nodemon app.js",
     "start": "node app.js",
-    "coverage": "jest --coverage"
+    "coverage": "jest --coverage",
+    "db:migrate": "sequelize-cli db:migrate",
+    "db:migrate:undo": "sequelize-cli db:migrate:undo"
   },
   "repository": {
     "type": "git",
