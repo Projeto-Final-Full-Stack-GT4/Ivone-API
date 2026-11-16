@@ -5,6 +5,7 @@ const router = express.Router();
 
 router.get('/', authMiddleware, roleMiddleware(['admin']), usuarioController.listar);
 router.get('/:id', usuarioController.buscarPorId);
+router.post('/', usuarioController.criarUsuario);
 
 
 module.exports = router;
