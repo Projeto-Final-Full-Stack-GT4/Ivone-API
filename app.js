@@ -6,6 +6,7 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./docs/swagger');
 const authRoutes = require('./routes/authRoutes');
 const produtoRoutes = require('./routes/produtoRoutes');
+const usuarioRoutes = require('./routes/usuarioRoutes');
 const { sequelize } = require('./models');
 const AppError = require('./utils/AppError');
 
@@ -23,6 +24,7 @@ app.get('/health', (req, res) => res.status(200).json({ status: 'ok' }));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/produtos', produtoRoutes);
+app.use('/api/v1/usuarios', usuarioRoutes);
 
 app.use((req, res) => res.status(404).json({ erro: 'Rota não encontrada.' }));
 app.use((error, req, res, next) => {
