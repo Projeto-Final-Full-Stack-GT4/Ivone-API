@@ -90,7 +90,6 @@ async function atualizarUsuario(req, res) {
     const { id } = req.params;
     const { nome, email, cpf, senha, confirmarSenha } = req.body;
 
-    // Verificar se o usuário pode realizar a atualização
     if (
         Number(req.usuario.id) !== Number(id) &&
         req.usuario.role !== 'admin'
@@ -100,7 +99,6 @@ async function atualizarUsuario(req, res) {
         });
     }
 
-    // Buscar usuário no banco
     const usuario = await Usuario.findByPk(id);
 
     if (!usuario) {
@@ -109,14 +107,12 @@ async function atualizarUsuario(req, res) {
         });
     }
 
-    // Verificar se existe algum campo para atualizar
     if (!nome && !email && !cpf && !senha) {
         return res.status(400).json({
             erro: 'Informe pelo menos um campo para atualizar.'
         });
     }
 
-    // Validar e-mail
     if (email) {
         const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -137,7 +133,6 @@ async function atualizarUsuario(req, res) {
         }
     }
 
-    // Verificar CPF duplicado
     if (cpf) {
         const cpfExistente = await Usuario.findOne({
             where: { cpf }
@@ -150,14 +145,12 @@ async function atualizarUsuario(req, res) {
         }
     }
 
-    // Preparar dados para atualização
     const dadosAtualizados = {};
 
     if (nome) dadosAtualizados.nome = nome;
     if (email) dadosAtualizados.email = email;
     if (cpf) dadosAtualizados.cpf = cpf;
 
-    // Atualizar senha, se informada
     if (senha) {
         if (!confirmarSenha) {
             return res.status(400).json({
@@ -174,7 +167,6 @@ async function atualizarUsuario(req, res) {
         dadosAtualizados.senha = await bcrypt.hash(senha, 10);
     }
 
-    // Salvar alterações
     await usuario.update(dadosAtualizados);
 
     return res.status(200).json(
@@ -182,9 +174,41 @@ async function atualizarUsuario(req, res) {
     );
 }
 
+// Excluir usuário
+async function excluirUsuario(req, res) {
+    const { id } = req.params;
+
+    // Verificar se o usuário pode realizar a exclusão
+    if (
+        Number(req.usuario.id) !== Number(id) &&
+        req.usuario.role !== 'admin'
+    ) {
+        return res.status(403).json({
+            erro: 'Você não tem permissão para excluir este usuário.'
+        });
+    }
+
+    // Buscar usuário no banco
+    const usuario = await Usuario.findByPk(id);
+
+    if (!usuario) {
+        return res.status(404).json({
+            erro: 'Usuário não encontrado.'
+        });
+    }
+
+    // Excluir usuário
+    await usuario.destroy();
+
+    return res.status(200).json({
+        mensagem: 'Usuário excluído com sucesso.'
+    });
+}
+
 module.exports = {
     listar,
     buscarPorId,
     criarUsuario,
-    atualizarUsuario
+    atualizarUsuario,
+    excluirUsuario
 };
