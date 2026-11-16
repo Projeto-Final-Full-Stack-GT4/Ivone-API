@@ -9,6 +9,7 @@
     "start": "node app.js",
     "coverage": "jest --coverage",
     "seed": "sequelize-cli db:seed:all",
+    "db:create": "sequelize-cli db:create",
     "db:migrate": "sequelize-cli db:migrate",
     "db:migrate:undo": "sequelize-cli db:migrate:undo"
   },
