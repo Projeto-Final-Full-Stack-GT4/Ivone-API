@@ -10,10 +10,18 @@ API REST da loja Ivone Beauty, construída com Express, Sequelize e MySQL.
 ## Configuração
 
 1. Instale as dependências com `npm install`.
-2. Copie `.env.example` para `.env` e ajuste as credenciais do MySQL e o segredo JWT.
-3. Crie o banco configurado em `DB_NAME` (ou execute `npx sequelize-cli db:create`).
-4. Execute as migrations com `npm run db:migrate`.
+2. Copie `.env.example` para `.env` e ajuste as credenciais do MySQL e o segredo JWT. `DB_NAME` deve ser o nome do banco que será criado; se não for definido, o padrão é `ivone_beauty`.
+3. Na pasta `Ivone-API`, crie o banco:
+
+   ```sh
+   npx sequelize-cli db:create
+   ```
+
+   O usuário configurado precisa ter permissão para criar bancos no MySQL. Alternativamente, crie manualmente o banco com o mesmo nome de `DB_NAME`.
+4. Crie as tabelas executando as migrations com `npm run db:migrate`.
 5. Inicie em desenvolvimento com `npm run dev`, ou em produção com `npm start`.
+
+Se a API encerrar com `ER_BAD_DB_ERROR` / `Unknown database`, confirme que o banco indicado por `DB_NAME` existe e que o valor corresponde ao nome criado. Depois, execute as migrations e inicie a API novamente.
 
 A API inicia em `http://localhost:3000` por padrão. O endpoint `GET /health` verifica a aplicação; a documentação fica em `/api-docs`.
 
