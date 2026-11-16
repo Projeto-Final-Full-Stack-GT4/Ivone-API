@@ -12,5 +12,17 @@ async function listar(req, res) {
     return res.status(200).json(usuariosFormatados);
     
 }
+async function buscarPorId(req, res) {
+    const usuario = await Usuario.findByPk(req.params.id)
+    
+    // usuário não encontrado
+    if (!usuario) {
+    return res.status(404).json({
+        erro: 'Usuário não encontrado.'
+    });
+}
+return res.status(200).json(usuarioResDto.fromEntity(usuario));
 
-module.exports = { listar };
+
+}
+module.exports = { listar, buscarPorId };

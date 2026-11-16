@@ -4,6 +4,7 @@ const { authMiddleware, roleMiddleware } = require('../middlewares/authMiddlewar
 const router = express.Router();
 
 router.get('/', authMiddleware, roleMiddleware(['admin']), usuarioController.listar);
+router.get('/:id', usuarioController.buscarPorId);
 
 
 module.exports = router;
