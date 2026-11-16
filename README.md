@@ -21,7 +21,7 @@ API REST da loja Ivone Beauty, construída com Express, Sequelize e MySQL.
 4. Crie as tabelas executando as migrations com `npm run db:migrate`.
 5. Inicie em desenvolvimento com `npm run dev`, ou em produção com `npm start`.
 
-Se a API encerrar com `ER_BAD_DB_ERROR` / `Unknown database`, confirme que o banco indicado por `DB_NAME` existe e que o valor corresponde ao nome criado. Depois, execute as migrations e inicie a API novamente.
+TLS para o MySQL fica desativado por padrão. Para um banco que exige TLS, configure `DB_SSL=true`; a validação do certificado permanece ativada. Se o provedor usar uma CA privada ou autoassinada, informe o caminho do certificado da CA em `DB_SSL_CA_FILE`. `DB_SSL_REJECT_UNAUTHORIZED=false` desativa a validação do certificado e deve ser usado apenas temporariamente e em ambientes confiáveis.
 
 A API inicia em `http://localhost:3000` por padrão. O endpoint `GET /health` verifica a aplicação; a documentação fica em `/api-docs`.
 
