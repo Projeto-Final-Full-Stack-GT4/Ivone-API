@@ -1,5 +1,6 @@
 const categoryMigration = require('../migrations/20261116044000-add-category-slug-and-menu-visibility');
 const menuVisibilityMigration = require('../migrations/20261116050000-add-use-in-menu-to-categorias');
+const renameKitsCategoryMigration = require('../migrations/20261116054000-rename-kits-category');
 const categorySeeder = require('../seeders/20261116053000-seed-categorias-demonstrativas');
 
 describe('integração relacional de categorias', () => {
@@ -64,6 +65,18 @@ describe('integração relacional de categorias', () => {
     expect(queryInterface.addColumn).not.toHaveBeenCalled();
   });
 
+  test('renomeia a categoria demonstrativa apenas quando ela ainda tem o nome antigo', async () => {
+    const queryInterface = { bulkUpdate: jest.fn().mockResolvedValue([1]) };
+
+    await renameKitsCategoryMigration.up(queryInterface);
+
+    expect(queryInterface.bulkUpdate).toHaveBeenCalledWith(
+      'categorias',
+      expect.objectContaining({ nome: 'Kits' }),
+      { slug: 'kits', nome: 'Kits especiais' }
+    );
+  });
+
   test('semeia categorias e associa produtos sem duplicar os vínculos', async () => {
     const categories = [];
     const products = [
@@ -106,6 +119,7 @@ describe('integração relacional de categorias', () => {
       'cabelos',
       'kits'
     ]);
+    expect(categories.find(({ slug }) => slug === 'kits').nome).toBe('Kits');
     expect(productCategories).toHaveLength(3);
     expect(new Set(productCategories.map(({ produtoId, categoriaId }) => `${produtoId}:${categoriaId}`)).size)
       .toBe(3);

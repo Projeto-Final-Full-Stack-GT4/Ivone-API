@@ -7,7 +7,7 @@ const categoriasPadrao = [
   { nome: 'Skincare', slug: 'skincare', descricao: 'Cuidados diários para a pele.' },
   { nome: 'Maquiagem', slug: 'maquiagem', descricao: 'Produtos para realçar a beleza.' },
   { nome: 'Cabelos', slug: 'cabelos', descricao: 'Cuidados e produtos para os cabelos.' },
-  { nome: 'Kits especiais', slug: 'kits', descricao: 'Combinações especiais de produtos.' }
+  { nome: 'Kits', slug: 'kits', descricao: 'Combinações especiais de produtos.' }
 ];
 
 module.exports = {
