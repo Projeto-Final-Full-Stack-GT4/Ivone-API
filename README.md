@@ -28,7 +28,7 @@ A API inicia em `http://localhost:3000` por padrão. O endpoint `GET /health` ve
 | `POST` | `/api/v1/auth/register` | Público | Cadastra uma conta |
 | `POST` | `/api/v1/auth/login` | Público | Autentica e retorna um token JWT |
 | `GET` | `/api/v1/auth/me` | Autenticado | Retorna os dados da conta autenticada |
-| `GET` | `/api/v1/produtos` | Público | Lista produtos ativos; aceita `categoriaId` (relacional), `categoria` (compatibilidade), `busca`, `page` e `limit`; retorna paginação e `produtos` com `categorias` |
+| `GET` | `/api/v1/produtos` | Público | Lista produtos ativos; aceita `categoriaId` (relacional), `categoria` (compatibilidade), `busca`, `page` e `limit`; retorna paginação e `produtos` com categorias associadas |
 | `GET` | `/api/v1/produtos/admin` | Administrador | Lista todos os produtos, inclusive inativos |
 | `GET` | `/api/v1/produtos/:id` | Público | Consulta um produto ativo |
 | `GET` | `/api/v1/product-images/:arquivo` | Público | Serve as imagens do catálogo |
@@ -37,8 +37,8 @@ A API inicia em `http://localhost:3000` por padrão. O endpoint `GET /health` ve
 | `PATCH` | `/api/v1/pedidos/:id/status` | Administrador | Avança o status do pedido; cancelar devolve os itens ao estoque |
 | `GET` | `/api/v1/usuarios` | Administrador | Lista somente ID, nome, e-mail e perfil dos clientes |
 | `GET` | `/api/v1/usuarios/:id` | Próprio usuário ou administrador | Consulta dados da conta; administradores recebem apenas dados de contato |
-| `POST` | `/api/v1/produtos` | Administrador | Cadastra um produto |
-| `PATCH` | `/api/v1/produtos/:id` | Administrador | Atualiza um produto |
+| `POST` | `/api/v1/produtos` | Administrador | Cadastra um produto, preferencialmente com `categoriaId` (aceita `categoria` legado) |
+| `PATCH` | `/api/v1/produtos/:id` | Administrador | Atualiza um produto e sua categoria |
 | `DELETE` | `/api/v1/produtos/:id` | Administrador | Desativa um produto |
 | `GET` | `/api/v1/categorias` | Público | Lista categorias com `id` e `slug`; aceita paginação e filtros por `nome`, `descricao` e `use_in_menu` |
 | `GET` | `/api/v1/categorias/:id` | Público | Consulta uma categoria |

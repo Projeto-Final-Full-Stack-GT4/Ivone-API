@@ -43,10 +43,22 @@ module.exports = {
             'application/json': {
               schema: {
                 type: 'object',
-                required: ['nome', 'categoriaId', 'descricao', 'tamanho', 'preco'],
+                required: ['nome', 'descricao', 'tamanho', 'preco'],
+                oneOf: [
+                  { required: ['categoriaId'] },
+                  { required: ['categoria'] }
+                ],
                 properties: {
                   nome: { type: 'string' },
-                  categoriaId: { type: 'integer', minimum: 1 },
+                  categoriaId: {
+                    type: 'integer',
+                    minimum: 1,
+                    description: 'Identificador da categoria; preferido para novos clientes.'
+                  },
+                  categoria: {
+                    type: 'string',
+                    description: 'Campo legado aceito para compatibilidade.'
+                  },
                   descricao: { type: 'string' },
                   tamanho: { type: 'string' },
                   preco: { type: 'number', minimum: 0 },
@@ -92,6 +104,7 @@ module.exports = {
                 type: 'object',
                 properties: {
                   categoriaId: { type: 'integer', minimum: 1 },
+                  categoria: { type: 'string' },
                   nome: { type: 'string' },
                   descricao: { type: 'string' },
                   tamanho: { type: 'string' },
@@ -275,7 +288,7 @@ module.exports = {
         }
       },
       post: {
-        summary: 'Cadastra categoria',
+        summary: 'Cadastra categoria; o slug é gerado pela API',
         security: [{ bearerAuth: [] }],
         requestBody: {
           required: true,

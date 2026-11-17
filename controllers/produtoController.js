@@ -156,9 +156,7 @@ async function criar(req, res) {
     const dadosProduto = { ...entity };
     delete dadosProduto.categoriaId;
     dadosProduto.categoria = categoria.slug;
-    const novoProduto = await Produto.create({
-      ...dadosProduto
-    }, { transaction });
+    const novoProduto = await Produto.create(dadosProduto, { transaction });
 
     await novoProduto.setCategorias([categoria], { transaction });
     return buscarProdutoComCategorias(novoProduto.id, transaction);

@@ -120,6 +120,7 @@ describe('category endpoints', () => {
     Categoria.create.mockResolvedValue({
       id: 8,
       nome: 'Unhas',
+      slug: 'unhas',
       use_in_menu: true
     });
 
