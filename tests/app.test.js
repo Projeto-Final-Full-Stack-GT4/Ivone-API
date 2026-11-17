@@ -39,4 +39,27 @@ describe('health endpoint', () => {
       body: { erro: 'Token de autenticação não fornecido.' }
     });
   });
+
+  test('serves product images from the API', async () => {
+    const { port } = server.address();
+    const response = await new Promise((resolve, reject) => {
+      const request = http.get({
+        hostname: '127.0.0.1',
+        port,
+        path: '/api/v1/product-images/serum_facial.png'
+      }, (result) => {
+        result.resume();
+        result.on('end', () => resolve({
+          status: result.statusCode,
+          contentType: result.headers['content-type']
+        }));
+      });
+      request.on('error', reject);
+    });
+
+    expect(response).toEqual({
+      status: 200,
+      contentType: 'image/png'
+    });
+  });
 });

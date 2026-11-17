@@ -2,6 +2,7 @@ require('dotenv').config({ quiet: true });
 
 const cors = require('cors');
 const express = require('express');
+const path = require('path');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./docs/swagger');
 const authRoutes = require('./routes/authRoutes');
@@ -22,6 +23,10 @@ app.use(express.json());
 app.get('/', (req, res) => res.status(200).json({ status: 'ok', name: 'ivone-api' }));
 app.get('/health', (req, res) => res.status(200).json({ status: 'ok' }));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use(
+  '/api/v1/product-images',
+  express.static(path.join(__dirname, 'public', 'product-images'))
+);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/produtos', produtoRoutes);
 app.use('/api/v1/usuarios', usuarioRoutes);

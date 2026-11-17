@@ -26,8 +26,9 @@ A API inicia em `http://localhost:3000` por padrão. O endpoint `GET /health` ve
 | `POST` | `/api/v1/auth/register` | Público | Cadastra uma conta |
 | `POST` | `/api/v1/auth/login` | Público | Autentica e retorna um token JWT |
 | `GET` | `/api/v1/auth/me` | Autenticado | Retorna os dados da conta autenticada |
-| `GET` | `/api/v1/produtos` | Público | Lista produtos ativos; aceita `categoria` e `busca` |
+| `GET` | `/api/v1/produtos` | Público | Lista produtos ativos; aceita `categoria`, `busca`, `page` e `limit`; retorna paginação e `produtos` |
 | `GET` | `/api/v1/produtos/:id` | Público | Consulta um produto ativo |
+| `GET` | `/api/v1/product-images/:arquivo` | Público | Serve as imagens do catálogo |
 | `POST` | `/api/v1/produtos` | Administrador | Cadastra um produto |
 | `PATCH` | `/api/v1/produtos/:id` | Administrador | Atualiza um produto |
 | `DELETE` | `/api/v1/produtos/:id` | Administrador | Desativa um produto |
@@ -42,7 +43,7 @@ Use `Authorization: Bearer <token>` nos endpoints autenticados. Novas contas rec
 - `Endereco`: endereço vinculado a uma conta.
 - `Pedido` e `ItemPedido`: estrutura inicial para pedidos e seus itens.
 
-As tabelas são criadas por migrations; a aplicação não sincroniza nem apaga automaticamente o esquema do banco. O comando `npm run db:migrate` também carrega os produtos e as avaliações demonstrativas que ainda não existirem, sem sobrescrever registros já cadastrados.
+As tabelas são criadas por migrations; a aplicação não sincroniza nem apaga automaticamente o esquema do banco. O comando `npm run db:migrate` também carrega os produtos e as avaliações demonstrativas que ainda não existirem, sem sobrescrever registros já cadastrados. As imagens do catálogo ficam em `public/product-images`; um seeder atualiza apenas os caminhos demonstrativos legados dos produtos correspondentes.
 
 ## Testes
 

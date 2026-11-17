@@ -10,7 +10,7 @@ const produtos = [
     tamanho: '30ml',
     preco: '89.90',
     tag: 'Mais Vendido',
-    imagem: 'local:serum-facial'
+    imagem: 'product-images/serum_facial.png'
   },
   {
     nome: 'Gel de Limpeza Facial',
@@ -19,7 +19,7 @@ const produtos = [
     tamanho: '120ml',
     preco: '49.90',
     tag: 'Vegano',
-    imagem: 'local:gel-limpeza'
+    imagem: 'product-images/Gel_de_Limpeza.png'
   },
   {
     nome: 'Pó Compacto Matte',
@@ -28,7 +28,7 @@ const produtos = [
     tamanho: '10g',
     preco: '69.90',
     tag: 'Lançamento',
-    imagem: 'local:po-compacto'
+    imagem: 'product-images/po_compacto.jpeg'
   },
   {
     nome: 'Batom Hidratante',
@@ -37,7 +37,7 @@ const produtos = [
     tamanho: '4g',
     preco: '59.90',
     tag: 'Mais Vendido',
-    imagem: 'local:batom'
+    imagem: 'product-images/batom.jpeg'
   },
   {
     nome: 'Sérum Facial Vitamina C',
@@ -46,7 +46,7 @@ const produtos = [
     tamanho: '30ml',
     preco: '79.90',
     tag: 'Destaque',
-    imagem: 'local:serum-facial'
+    imagem: 'product-images/serum_facial.png'
   },
   {
     nome: 'Gel de Limpeza Suave',
@@ -55,7 +55,7 @@ const produtos = [
     tamanho: '150ml',
     preco: '44.90',
     tag: 'Uso Diário',
-    imagem: 'local:gel-limpeza'
+    imagem: 'product-images/Gel_de_Limpeza.png'
   },
   {
     nome: 'Sérum Facial Noturno',
@@ -64,7 +64,7 @@ const produtos = [
     tamanho: '30ml',
     preco: '94.90',
     tag: 'Novidade',
-    imagem: 'local:serum-facial'
+    imagem: 'product-images/serum_facial.png'
   },
   {
     nome: 'Gel de Limpeza Purificante',
@@ -73,7 +73,7 @@ const produtos = [
     tamanho: '100ml',
     preco: '39.90',
     tag: 'Favorito',
-    imagem: 'local:gel-limpeza'
+    imagem: 'product-images/Gel_de_Limpeza.png'
   },
   {
     nome: 'Pó Compacto Natural',
@@ -82,7 +82,7 @@ const produtos = [
     tamanho: '10g',
     preco: '64.90',
     tag: 'Essencial',
-    imagem: 'local:po-compacto'
+    imagem: 'product-images/po_compacto.jpeg'
   },
   {
     nome: 'Batom Nude Cremoso',
@@ -91,7 +91,7 @@ const produtos = [
     tamanho: '4g',
     preco: '54.90',
     tag: 'Clássico',
-    imagem: 'local:batom'
+    imagem: 'product-images/batom.jpeg'
   },
   {
     nome: 'Batom Rosa Intenso',
@@ -100,7 +100,7 @@ const produtos = [
     tamanho: '4g',
     preco: '57.90',
     tag: 'Destaque',
-    imagem: 'local:batom'
+    imagem: 'product-images/batom.jpeg'
   },
   {
     nome: 'Pó Compacto Translúcido',
@@ -109,7 +109,7 @@ const produtos = [
     tamanho: '8g',
     preco: '72.90',
     tag: 'Novidade',
-    imagem: 'local:po-compacto'
+    imagem: 'product-images/po_compacto.jpeg'
   },
   {
     nome: 'Batom Vermelho Clássico',
@@ -118,7 +118,7 @@ const produtos = [
     tamanho: '4g',
     preco: '59.90',
     tag: 'Clássico',
-    imagem: 'local:batom'
+    imagem: 'product-images/batom.jpeg'
   },
   {
     nome: 'Sérum Facial Hidratante',
@@ -127,7 +127,7 @@ const produtos = [
     tamanho: '30ml',
     preco: '74.90',
     tag: 'Hidratação',
-    imagem: 'local:serum-facial'
+    imagem: 'product-images/serum_facial.png'
   },
   {
     nome: 'Gel de Limpeza Diário',
@@ -136,7 +136,7 @@ const produtos = [
     tamanho: '120ml',
     preco: '47.90',
     tag: 'Essencial',
-    imagem: 'local:gel-limpeza'
+    imagem: 'product-images/Gel_de_Limpeza.png'
   },
   {
     nome: 'Kit Rotina Facial',
@@ -145,7 +145,7 @@ const produtos = [
     tamanho: '2 produtos',
     preco: '119.90',
     tag: 'Kit Especial',
-    imagem: 'local:serum-facial'
+    imagem: 'product-images/serum_facial.png'
   },
   {
     nome: 'Kit Maquiagem Essencial',
@@ -154,7 +154,7 @@ const produtos = [
     tamanho: '2 produtos',
     preco: '109.90',
     tag: 'Kit Especial',
-    imagem: 'local:po-compacto'
+    imagem: 'product-images/po_compacto.jpeg'
   },
   {
     nome: 'Kit Presente Beleza',
@@ -163,7 +163,7 @@ const produtos = [
     tamanho: '3 itens',
     preco: '149.90',
     tag: 'Presente',
-    imagem: 'local:batom'
+    imagem: 'product-images/batom.jpeg'
   },
   {
     nome: 'Kit Skincare Básico',
@@ -172,7 +172,7 @@ const produtos = [
     tamanho: '2 produtos',
     preco: '99.90',
     tag: 'Mais Vendido',
-    imagem: 'local:gel-limpeza'
+    imagem: 'product-images/Gel_de_Limpeza.png'
   },
   {
     nome: 'Kit Autocuidado',
@@ -181,7 +181,7 @@ const produtos = [
     tamanho: '3 produtos',
     preco: '139.90',
     tag: 'Especial',
-    imagem: 'local:serum-facial'
+    imagem: 'product-images/serum_facial.png'
   }
 ];
 
