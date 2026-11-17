@@ -139,6 +139,7 @@ describe('category endpoints', () => {
     expect(response.status).toBe(201);
     expect(Categoria.create).toHaveBeenCalledWith({
       nome: 'Unhas',
+      slug: 'unhas',
       descricao: null,
       use_in_menu: true
     });

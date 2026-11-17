@@ -29,6 +29,7 @@ module.exports = {
         summary: 'Lista produtos ativos',
         parameters: [
           { in: 'query', name: 'categoria', schema: { type: 'string' } },
+          { in: 'query', name: 'categoriaId', schema: { type: 'integer', minimum: 1 } },
           { in: 'query', name: 'busca', schema: { type: 'string' } }
         ],
         responses: { 200: { description: 'Lista de produtos' } }
@@ -36,6 +37,27 @@ module.exports = {
       post: {
         summary: 'Cadastra um produto',
         security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['nome', 'categoriaId', 'descricao', 'tamanho', 'preco'],
+                properties: {
+                  nome: { type: 'string' },
+                  categoriaId: { type: 'integer', minimum: 1 },
+                  descricao: { type: 'string' },
+                  tamanho: { type: 'string' },
+                  preco: { type: 'number', minimum: 0 },
+                  estoque: { type: 'integer', minimum: 0 },
+                  imagem: { type: 'string', nullable: true },
+                  tag: { type: 'string', nullable: true }
+                }
+              }
+            }
+          }
+        },
         responses: {
           201: { description: 'Produto criado' },
           403: { description: 'Apenas administradores' }
@@ -62,6 +84,25 @@ module.exports = {
         summary: 'Atualiza dados ou estoque de um produto',
         security: [{ bearerAuth: [] }],
         parameters: [{ in: 'path', name: 'id', required: true, schema: { type: 'integer' } }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  categoriaId: { type: 'integer', minimum: 1 },
+                  nome: { type: 'string' },
+                  descricao: { type: 'string' },
+                  tamanho: { type: 'string' },
+                  preco: { type: 'number', minimum: 0 },
+                  estoque: { type: 'integer', minimum: 0 },
+                  ativo: { type: 'boolean' }
+                }
+              }
+            }
+          }
+        },
         responses: {
           200: { description: 'Produto atualizado' },
           403: { description: 'Apenas administradores' }
@@ -197,7 +238,7 @@ module.exports = {
     },
     '/categorias': {
       get: {
-        summary: 'Lista categorias com paginação e filtros',
+        summary: 'Lista categorias com identificador, slug, paginação e filtros',
         parameters: [
           { in: 'query', name: 'pagina', schema: { type: 'integer', minimum: 1 } },
           { in: 'query', name: 'limite', schema: { type: 'integer', minimum: 1, maximum: 100 } },
@@ -205,7 +246,33 @@ module.exports = {
           { in: 'query', name: 'descricao', schema: { type: 'string' } },
           { in: 'query', name: 'use_in_menu', schema: { type: 'boolean' } }
         ],
-        responses: { 200: { description: 'Lista paginada de categorias' } }
+        responses: {
+          200: {
+            description: 'Lista paginada de categorias com slug estável',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    categorias: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          id: { type: 'integer' },
+                          nome: { type: 'string' },
+                          slug: { type: 'string' },
+                          descricao: { type: 'string', nullable: true },
+                          use_in_menu: { type: 'boolean' }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       post: {
         summary: 'Cadastra categoria',
@@ -244,7 +311,7 @@ module.exports = {
         }
       },
       put: {
-        summary: 'Atualiza categoria',
+        summary: 'Atualiza nome e descrição sem alterar o slug estável',
         security: [{ bearerAuth: [] }],
         parameters: [{ in: 'path', name: 'id', required: true, schema: { type: 'integer' } }],
         requestBody: {

@@ -28,7 +28,7 @@ A API inicia em `http://localhost:3000` por padrão. O endpoint `GET /health` ve
 | `POST` | `/api/v1/auth/register` | Público | Cadastra uma conta |
 | `POST` | `/api/v1/auth/login` | Público | Autentica e retorna um token JWT |
 | `GET` | `/api/v1/auth/me` | Autenticado | Retorna os dados da conta autenticada |
-| `GET` | `/api/v1/produtos` | Público | Lista produtos ativos; aceita `categoria`, `busca`, `page` e `limit`; retorna paginação e `produtos` |
+| `GET` | `/api/v1/produtos` | Público | Lista produtos ativos; aceita `categoriaId` (relacional), `categoria` (compatibilidade), `busca`, `page` e `limit`; retorna paginação e `produtos` com `categorias` |
 | `GET` | `/api/v1/produtos/admin` | Administrador | Lista todos os produtos, inclusive inativos |
 | `GET` | `/api/v1/produtos/:id` | Público | Consulta um produto ativo |
 | `GET` | `/api/v1/product-images/:arquivo` | Público | Serve as imagens do catálogo |
@@ -40,9 +40,9 @@ A API inicia em `http://localhost:3000` por padrão. O endpoint `GET /health` ve
 | `POST` | `/api/v1/produtos` | Administrador | Cadastra um produto |
 | `PATCH` | `/api/v1/produtos/:id` | Administrador | Atualiza um produto |
 | `DELETE` | `/api/v1/produtos/:id` | Administrador | Desativa um produto |
-| `GET` | `/api/v1/categorias` | Público | Lista categorias; aceita paginação e filtros por `nome`, `descricao` e `use_in_menu` |
+| `GET` | `/api/v1/categorias` | Público | Lista categorias com `id` e `slug`; aceita paginação e filtros por `nome`, `descricao` e `use_in_menu` |
 | `GET` | `/api/v1/categorias/:id` | Público | Consulta uma categoria |
-| `POST` | `/api/v1/categorias` | Administrador | Cadastra uma categoria |
+| `POST` | `/api/v1/categorias` | Administrador | Cadastra uma categoria; o `slug` estável é gerado pela API a partir do nome |
 | `PUT` / `PATCH` | `/api/v1/categorias/:id` | Administrador | Atualiza uma categoria |
 | `DELETE` | `/api/v1/categorias/:id` | Administrador | Exclui uma categoria sem produtos associados |
 
@@ -55,12 +55,13 @@ O catálogo demonstrativo começa com 20 unidades por produto. A criação do pe
 ## Modelos
 
 - `Usuario`: nome, e-mail, CPF, senha com hash e perfil.
-- `Produto`: nome, categoria, descrição, tamanho, preço, imagem, estoque e estado de publicação.
+- `Produto`: nome, descrição, tamanho, preço, imagem, estoque e estado de publicação; categorias são vinculadas por `ProdutoCategoria`.
+- `Categoria`: nome, slug estável, descrição e visibilidade no menu.
 - `AvaliacaoProduto`: avaliações vinculadas a produtos, com autor, nota, data e comentário.
 - `Endereco`: endereço vinculado a uma conta.
 - `Pedido` e `ItemPedido`: estrutura inicial para pedidos e seus itens.
 
-As tabelas são criadas por migrations; a aplicação não sincroniza nem apaga automaticamente o esquema do banco. O comando `npm run db:migrate` também carrega os produtos e as avaliações demonstrativas que ainda não existirem, sem sobrescrever registros já cadastrados. As imagens do catálogo ficam em `public/product-images`; um seeder atualiza apenas os caminhos demonstrativos legados dos produtos correspondentes.
+As tabelas são criadas por migrations; a aplicação não sincroniza nem apaga automaticamente o esquema do banco. O comando `npm run db:migrate` também carrega produtos, categorias, vínculos e avaliações demonstrativas ausentes, sem sobrescrever registros já cadastrados. As imagens do catálogo ficam em `public/product-images`; um seeder atualiza apenas os caminhos demonstrativos legados dos produtos correspondentes.
 
 ## Testes
 

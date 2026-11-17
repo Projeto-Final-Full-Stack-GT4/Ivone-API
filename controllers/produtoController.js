@@ -1,8 +1,19 @@
 
 const { Op } = require('sequelize');
-const { AvaliacaoProduto, Produto } = require('../models');
+const { AvaliacaoProduto, Categoria, Produto, sequelize } = require('../models');
 const produtoReqDto = require('../dtos/produtoReqDto');
 const AppError = require('../utils/AppError');
+const categorySlug = require('../utils/categorySlug');
+
+function categoriasInclude(options = {}) {
+  return {
+    model: Categoria,
+    as: 'categorias',
+    attributes: ['id', 'nome', 'slug', 'descricao', 'use_in_menu'],
+    through: { attributes: [] },
+    ...options
+  };
+}
 
 function parseId(value) {
   const id = Number(value);
@@ -32,6 +43,14 @@ async function listar(req, res) {
     where.categoria = req.query.categoria.trim();
   }
 
+  const categoriaId = req.query.categoriaId === undefined
+    ? undefined
+    : Number(req.query.categoriaId);
+  if (categoriaId !== undefined &&
+      (!Number.isSafeInteger(categoriaId) || categoriaId < 1)) {
+    throw new AppError('Identificador de categoria inválido.');
+  }
+
   // Busca por nome ou descrição
   if (typeof req.query.busca === 'string' && req.query.busca.trim()) {
     where[Op.or] = [
@@ -43,6 +62,12 @@ async function listar(req, res) {
   // Consulta com paginação
   const { count, rows } = await Produto.findAndCountAll({
     where,
+    include: [
+      categoriasInclude(categoriaId
+        ? { where: { id: categoriaId }, required: true }
+        : {})
+    ],
+    distinct: true,
     limit,
     offset,
     order: [['id', 'ASC']]
@@ -59,6 +84,7 @@ async function listar(req, res) {
 
 async function listarAdmin(req, res) {
   const produtos = await Produto.findAll({
+    include: [categoriasInclude()],
     order: [['id', 'ASC']]
   });
 
@@ -72,13 +98,16 @@ async function buscarPorId(req, res) {
       id: parseId(req.params.id),
       ativo: true
     },
-    include: [{
-      model: AvaliacaoProduto,
-      as: 'reviews',
-      attributes: ['id', 'user', 'rating', 'date', 'comment'],
-      separate: true,
-      order: [['date', 'DESC'], ['id', 'DESC']]
-    }]
+    include: [
+      categoriasInclude(),
+      {
+        model: AvaliacaoProduto,
+        as: 'reviews',
+        attributes: ['id', 'user', 'rating', 'date', 'comment'],
+        separate: true,
+        order: [['date', 'DESC'], ['id', 'DESC']]
+      }
+    ]
   });
 
   if (!produto) {
@@ -88,28 +117,83 @@ async function buscarPorId(req, res) {
   return res.status(200).json(produto);
 }
 
+async function resolverCategoria(entity, transaction) {
+  if (entity.categoriaId === undefined && entity.categoria === undefined) {
+    return null;
+  }
+
+  const categoria = entity.categoriaId !== undefined
+    ? await Categoria.findByPk(entity.categoriaId, { transaction })
+    : await Categoria.findOne({
+      where: {
+        [Op.or]: [
+          { slug: categorySlug(entity.categoria) },
+          { nome: entity.categoria.trim() }
+        ]
+      },
+      transaction
+    });
+
+  if (!categoria) {
+    throw new AppError('Categoria não encontrada.', 404);
+  }
+
+  return categoria;
+}
+
+async function buscarProdutoComCategorias(id, transaction) {
+  return Produto.findByPk(id, {
+    include: [categoriasInclude()],
+    transaction
+  });
+}
+
 // POST - Cadastrar produto
 async function criar(req, res) {
-  const produto = await Produto.create(
-    produtoReqDto.toEntity(req.body)
-  );
+  const entity = produtoReqDto.toEntity(req.body);
+  const produto = await sequelize.transaction(async (transaction) => {
+    const categoria = await resolverCategoria(entity, transaction);
+    const dadosProduto = { ...entity };
+    delete dadosProduto.categoriaId;
+    dadosProduto.categoria = categoria.slug;
+    const novoProduto = await Produto.create({
+      ...dadosProduto
+    }, { transaction });
+
+    await novoProduto.setCategorias([categoria], { transaction });
+    return buscarProdutoComCategorias(novoProduto.id, transaction);
+  });
 
   return res.status(201).json(produto);
 }
 
-// PUT - Atualizar produto
+// PATCH - Atualizar produto
 async function atualizar(req, res) {
-  const produto = await Produto.findByPk(parseId(req.params.id));
+  const id = parseId(req.params.id);
+  const entity = produtoReqDto.toEntity(req.body, true);
+  const produtoAtualizado = await sequelize.transaction(async (transaction) => {
+    const produto = await Produto.findByPk(id, { transaction });
 
-  if (!produto) {
-    throw new AppError('Produto não encontrado.', 404);
-  }
+    if (!produto) {
+      throw new AppError('Produto não encontrado.', 404);
+    }
 
-  await produto.update(
-    produtoReqDto.toEntity(req.body, true)
-  );
+    const categoria = await resolverCategoria(entity, transaction);
+    const dadosProduto = { ...entity };
+    delete dadosProduto.categoriaId;
+    if (categoria) {
+      dadosProduto.categoria = categoria.slug;
+    }
 
-  return res.status(200).json(produto);
+    await produto.update(dadosProduto, { transaction });
+    if (categoria) {
+      await produto.setCategorias([categoria], { transaction });
+    }
+
+    return buscarProdutoComCategorias(produto.id, transaction);
+  });
+
+  return res.status(200).json(produtoAtualizado);
 }
 
 // DELETE - Excluir produto (exclusão lógica)

@@ -2,6 +2,7 @@
 const { Op } = require('sequelize');
 const { Categoria } = require('../models');
 const AppError = require('../utils/AppError');
+const categorySlug = require('../utils/categorySlug');
 
 // Validar o ID recebido pela URL
 function parseId(value) {
@@ -104,6 +105,7 @@ async function criar(req, res) {
 
     const categoria = await Categoria.create({
         nome: nome.trim(),
+        slug: categorySlug(nome),
         descricao: descricao?.trim() || null,
         use_in_menu: use_in_menu === undefined ? true : use_in_menu
     });
