@@ -1,6 +1,6 @@
 
 const { Op } = require('sequelize');
-const { Produto } = require('../models');
+const { AvaliacaoProduto, Produto } = require('../models');
 const produtoReqDto = require('../dtos/produtoReqDto');
 const AppError = require('../utils/AppError');
 
@@ -63,7 +63,14 @@ async function buscarPorId(req, res) {
     where: {
       id: parseId(req.params.id),
       ativo: true
-    }
+    },
+    include: [{
+      model: AvaliacaoProduto,
+      as: 'reviews',
+      attributes: ['id', 'user', 'rating', 'date', 'comment'],
+      separate: true,
+      order: [['date', 'DESC'], ['id', 'DESC']]
+    }]
   });
 
   if (!produto) {

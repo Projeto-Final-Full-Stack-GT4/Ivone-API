@@ -14,4 +14,23 @@ describe('database config', () => {
     const config = require('../config/config.js');
     expect(config.development.dialectOptions.ssl).toBeUndefined();
   });
+
+  test('enables SSL with certificate verification by default', () => {
+    process.env.DB_SSL = 'true';
+    delete process.env.DB_SSL_REJECT_UNAUTHORIZED;
+
+    const config = require('../config/config.js');
+    expect(config.development.dialectOptions.ssl).toEqual({
+      minVersion: 'TLSv1.2',
+      rejectUnauthorized: true
+    });
+  });
+
+  test('allows opting out of certificate verification explicitly', () => {
+    process.env.DB_SSL = 'true';
+    process.env.DB_SSL_REJECT_UNAUTHORIZED = 'false';
+
+    const config = require('../config/config.js');
+    expect(config.development.dialectOptions.ssl.rejectUnauthorized).toBe(false);
+  });
 });
