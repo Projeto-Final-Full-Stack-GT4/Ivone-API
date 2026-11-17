@@ -207,7 +207,7 @@ module.exports = {
       'produtos',
       novosProdutos.map((produto) => ({
         ...produto,
-        estoque: 0,
+        estoque: 20,
         ativo: true,
         createdAt: now,
         updatedAt: now

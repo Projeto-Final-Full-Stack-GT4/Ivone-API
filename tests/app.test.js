@@ -40,6 +40,13 @@ describe('health endpoint', () => {
     });
   });
 
+  test('protects order creation with authentication', async () => {
+    await expect(requestJson(server, 'POST', '/api/v1/pedidos')).resolves.toEqual({
+      status: 401,
+      body: { erro: 'Token de autenticação não fornecido.' }
+    });
+  });
+
   test('serves product images from the API', async () => {
     const { port } = server.address();
     const response = await new Promise((resolve, reject) => {

@@ -1,6 +1,7 @@
 const catalogoSeeder = require('../seeders/20261116050000-seed-catalogo-demonstrativo');
 const avaliacoesSeeder = require('../seeders/20261116051000-seed-avaliacoes-demonstrativas');
 const imagensSeeder = require('../seeders/20261116052000-atualiza-imagens-produtos-demonstrativos');
+const estoqueDemonstrativoMigration = require('../migrations/20261116060000-inicializa-estoque-catalogo-demonstrativo');
 
 describe('catálogo demonstrativo', () => {
   test('insere produtos ausentes sem duplicar nem sobrescrever os existentes', async () => {
@@ -29,6 +30,7 @@ describe('catálogo demonstrativo', () => {
     );
     expect(inseridos.find(({ nome }) => nome === 'Gel de Limpeza Facial').imagem)
       .toBe('product-images/Gel_de_Limpeza.png');
+    expect(inseridos.find(({ nome }) => nome === 'Gel de Limpeza Facial').estoque).toBe(20);
     expect(existentes[0].descricao).toBe('Descrição já cadastrada.');
 
     await catalogoSeeder.up(queryInterface);
@@ -58,6 +60,20 @@ describe('catálogo demonstrativo', () => {
       'produtos',
       expect.objectContaining({ imagem: 'local:serum-facial' }),
       { nome: 'Sérum Facial Revitalizante', imagem: 'product-images/serum_facial.png' }
+    );
+  });
+
+  test('inicializa apenas produtos demonstrativos que ainda não têm estoque', async () => {
+    const queryInterface = {
+      bulkUpdate: jest.fn().mockResolvedValue([20])
+    };
+
+    await estoqueDemonstrativoMigration.up(queryInterface);
+
+    expect(queryInterface.bulkUpdate).toHaveBeenCalledWith(
+      'produtos',
+      { estoque: 20 },
+      expect.objectContaining({ estoque: 0, nome: expect.arrayContaining(['Sérum Facial Revitalizante']) })
     );
   });
 

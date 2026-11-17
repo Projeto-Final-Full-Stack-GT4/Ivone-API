@@ -29,11 +29,14 @@ A API inicia em `http://localhost:3000` por padrão. O endpoint `GET /health` ve
 | `GET` | `/api/v1/produtos` | Público | Lista produtos ativos; aceita `categoria`, `busca`, `page` e `limit`; retorna paginação e `produtos` |
 | `GET` | `/api/v1/produtos/:id` | Público | Consulta um produto ativo |
 | `GET` | `/api/v1/product-images/:arquivo` | Público | Serve as imagens do catálogo |
+| `POST` | `/api/v1/pedidos` | Autenticado | Cria um pedido pendente; recebe `{ "itens": [{ "produtoId": 1, "quantidade": 2 }] }`, valida estoque e calcula o total pela API |
 | `POST` | `/api/v1/produtos` | Administrador | Cadastra um produto |
 | `PATCH` | `/api/v1/produtos/:id` | Administrador | Atualiza um produto |
 | `DELETE` | `/api/v1/produtos/:id` | Administrador | Desativa um produto |
 
 Use `Authorization: Bearer <token>` nos endpoints autenticados. Novas contas recebem o perfil `cliente`; para promover uma conta a administradora, atualize seu campo `role` diretamente no banco.
+
+O catálogo demonstrativo começa com 20 unidades por produto. A criação do pedido reserva o estoque e registra o preço unitário vigente; o pedido permanece pendente e não inclui pagamento nem frete.
 
 ## Modelos
 
