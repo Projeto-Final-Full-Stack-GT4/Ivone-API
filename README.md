@@ -29,6 +29,11 @@ A API inicia em `http://localhost:3000` por padrão. O endpoint `GET /health` ve
 | `POST` | `/api/v1/produtos` | Administrador | Cadastra um produto |
 | `PATCH` | `/api/v1/produtos/:id` | Administrador | Atualiza um produto |
 | `DELETE` | `/api/v1/produtos/:id` | Administrador | Desativa um produto |
+| `GET` | `/api/v1/categorias` | Público | Lista categorias; aceita paginação e filtros por `nome`, `descricao` e `use_in_menu` |
+| `GET` | `/api/v1/categorias/:id` | Público | Consulta uma categoria |
+| `POST` | `/api/v1/categorias` | Administrador | Cadastra uma categoria |
+| `PUT` / `PATCH` | `/api/v1/categorias/:id` | Administrador | Atualiza uma categoria |
+| `DELETE` | `/api/v1/categorias/:id` | Administrador | Exclui uma categoria sem produtos associados |
 
 Use `Authorization: Bearer <token>` nos endpoints autenticados. Novas contas recebem o perfil `cliente`; para promover uma conta a administradora, atualize seu campo `role` diretamente no banco.
 
