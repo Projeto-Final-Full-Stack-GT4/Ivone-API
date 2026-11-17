@@ -8,7 +8,8 @@
     "dev": "nodemon app.js",
     "start": "node app.js",
     "coverage": "jest --coverage",
-    "db:migrate": "sequelize-cli db:migrate",
+    "seed": "sequelize-cli db:seed:all",
+    "db:migrate": "sequelize-cli db:migrate && sequelize-cli db:seed:all",
     "db:migrate:undo": "sequelize-cli db:migrate:undo"
   },
   "repository": {
