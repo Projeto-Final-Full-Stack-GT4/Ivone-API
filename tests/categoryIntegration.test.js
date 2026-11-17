@@ -1,8 +1,9 @@
 const categoryMigration = require('../migrations/20261116044000-add-category-slug-and-menu-visibility');
+const menuVisibilityMigration = require('../migrations/20261116050000-add-use-in-menu-to-categorias');
 const categorySeeder = require('../seeders/20261116053000-seed-categorias-demonstrativas');
 
 describe('integração relacional de categorias', () => {
-  test('migra slugs únicos e inclui a visibilidade do menu em esquemas existentes', async () => {
+  test('migra slugs únicos em esquemas existentes', async () => {
     const updates = [];
     const queryInterface = {
       describeTable: jest.fn().mockResolvedValue({ id: {}, nome: {} }),
@@ -24,11 +25,8 @@ describe('integração relacional de categorias', () => {
       BOOLEAN: 'BOOLEAN'
     });
 
-    expect(queryInterface.addColumn).toHaveBeenCalledWith(
-      'categorias',
-      'use_in_menu',
-      expect.objectContaining({ allowNull: false, defaultValue: true })
-    );
+    expect(queryInterface.addColumn).toHaveBeenCalledTimes(1);
+    expect(queryInterface.addColumn).toHaveBeenCalledWith('categorias', 'slug', expect.any(Object));
     expect(updates).toEqual([
       { values: { slug: 'maquiagem' }, where: { id: 1 } },
       { values: { slug: 'maquiagem-2-2' }, where: { id: 2 } }
@@ -38,6 +36,32 @@ describe('integração relacional de categorias', () => {
       ['slug'],
       expect.objectContaining({ unique: true })
     );
+  });
+
+  test('adiciona a visibilidade do menu apenas quando a coluna não existe', async () => {
+    const queryInterface = {
+      describeTable: jest.fn().mockResolvedValue({ id: {}, nome: {} }),
+      addColumn: jest.fn().mockResolvedValue()
+    };
+
+    await menuVisibilityMigration.up(queryInterface, { BOOLEAN: 'BOOLEAN' });
+
+    expect(queryInterface.addColumn).toHaveBeenCalledWith(
+      'categorias',
+      'use_in_menu',
+      expect.objectContaining({ allowNull: false, defaultValue: true })
+    );
+
+    queryInterface.describeTable.mockResolvedValue({
+      id: {},
+      nome: {},
+      use_in_menu: {}
+    });
+    queryInterface.addColumn.mockClear();
+
+    await menuVisibilityMigration.up(queryInterface, { BOOLEAN: 'BOOLEAN' });
+
+    expect(queryInterface.addColumn).not.toHaveBeenCalled();
   });
 
   test('semeia categorias e associa produtos sem duplicar os vínculos', async () => {
