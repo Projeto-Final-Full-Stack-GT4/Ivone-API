@@ -10,10 +10,12 @@ API REST da loja Ivone Beauty, construída com Express, Sequelize e MySQL.
 ## Configuração
 
 1. Instale as dependências com `npm install`.
-2. Copie `.env.example` para `.env` e ajuste as credenciais do MySQL e o segredo JWT.
+2. Copie `.env.example` para `.env` e ajuste as credenciais do MySQL. O segredo JWT de exemplo serve apenas para a demonstração local.
 3. Crie o banco configurado em `DB_NAME` (ou execute `npx sequelize-cli db:create`).
 4. Execute as migrations e carregue o catálogo demonstrativo com `npm run db:migrate`.
 5. Inicie em desenvolvimento com `npm run dev`, ou em produção com `npm start`.
+
+Para a demonstração local, mantenha a API na porta `3000` e o frontend Vite na porta `5173`, conforme o `CORS_ORIGIN` do arquivo de exemplo. Se o Vite escolher outra porta, atualize `CORS_ORIGIN` e reinicie a API.
 
 TLS para o MySQL fica desativado por padrão. Para um banco que exige TLS, configure `DB_SSL=true`; a validação do certificado permanece ativada. Se o provedor usar uma CA privada ou autoassinada, informe o caminho do certificado da CA em `DB_SSL_CA_FILE`. `DB_SSL_REJECT_UNAUTHORIZED=false` desativa a validação do certificado e deve ser usado apenas temporariamente e em ambientes confiáveis.
 
