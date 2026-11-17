@@ -4,16 +4,32 @@ const usuarioResDto = require('../dtos/usuarioResDto');
 const bcrypt = require('bcrypt');
 
 async function listar(req, res) {
-    const usuarios = await Usuario.findAll();
+    const usuarios = await Usuario.findAll({
+        where: { role: 'cliente' },
+        attributes: ['id', 'nome', 'email', 'role'],
+        order: [['id', 'ASC']]
+    });
 
-    const usuariosFormatados = usuarios.map(
-        usuario => usuarioResDto.fromEntity(usuario)
-    );
+    const usuariosFormatados = usuarios.map(({ id, nome, email, role }) => ({
+        id,
+        nome,
+        email,
+        role
+    }));
 
     return res.status(200).json(usuariosFormatados);
 }
 
 async function buscarPorId(req, res) {
+    if (
+        Number(req.usuario.id) !== Number(req.params.id) &&
+        req.usuario.role !== 'admin'
+    ) {
+        return res.status(403).json({
+            erro: 'Você não tem permissão para consultar este usuário.'
+        });
+    }
+
     const usuario = await Usuario.findByPk(req.params.id);
 
     if (!usuario) {
@@ -22,14 +38,16 @@ async function buscarPorId(req, res) {
         });
     }
 
-    return res.status(200).json(
-        usuarioResDto.fromEntity(usuario)
-    );
+    const dadosUsuario = Number(req.usuario.id) === Number(req.params.id)
+        ? usuarioResDto.fromEntity(usuario)
+        : { id: usuario.id, nome: usuario.nome, email: usuario.email, role: usuario.role };
+
+    return res.status(200).json(dadosUsuario);
 }
 
 // Criar usuário
 async function criarUsuario(req, res) {
-    const { nome, email, cpf, senha, confirmarSenha } = req.body;
+    const { nome, email, cpf, senha, confirmarSenha } = req.body || {};
 
     if (!nome || !email || !cpf || !senha || !confirmarSenha) {
         return res.status(400).json({
@@ -88,12 +106,9 @@ async function criarUsuario(req, res) {
 // Atualizar usuário
 async function atualizarUsuario(req, res) {
     const { id } = req.params;
-    const { nome, email, cpf, senha, confirmarSenha } = req.body;
+    const { nome, email, cpf, senha, confirmarSenha } = req.body || {};
 
-    if (
-        Number(req.usuario.id) !== Number(id) &&
-        req.usuario.role !== 'admin'
-    ) {
+    if (Number(req.usuario.id) !== Number(id)) {
         return res.status(403).json({
             erro: 'Você não tem permissão para atualizar este usuário.'
         });
@@ -179,10 +194,7 @@ async function excluirUsuario(req, res) {
     const { id } = req.params;
 
     // Verificar se o usuário pode realizar a exclusão
-    if (
-        Number(req.usuario.id) !== Number(id) &&
-        req.usuario.role !== 'admin'
-    ) {
+    if (Number(req.usuario.id) !== Number(id)) {
         return res.status(403).json({
             erro: 'Você não tem permissão para excluir este usuário.'
         });

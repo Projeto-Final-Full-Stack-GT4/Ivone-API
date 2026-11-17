@@ -1,6 +1,19 @@
 
 require('dotenv').config({ quiet: true });
 
+const fs = require('fs');
+
+const sslEnabled = process.env.DB_SSL === 'true';
+const ssl = sslEnabled
+  ? {
+      minVersion: 'TLSv1.2',
+      rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false',
+      ...(process.env.DB_SSL_CA_FILE
+        ? { ca: fs.readFileSync(process.env.DB_SSL_CA_FILE, 'utf8') }
+        : {})
+    }
+  : undefined;
+
 const common = {
   username: process.env.DB_USERNAME || 'root',
   password: process.env.DB_PASSWORD || '',
@@ -8,7 +21,8 @@ const common = {
   host: process.env.DB_HOST || '127.0.0.1',
   port: Number(process.env.DB_PORT || 3306),
   dialect: process.env.DB_DIALECT || 'mysql',
-  logging: false
+  logging: false,
+  dialectOptions: ssl ? { ssl } : {}
 };
 
 if (process.env.NODE_ENV === 'production') {
