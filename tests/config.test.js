@@ -12,7 +12,7 @@ describe('database config', () => {
     delete process.env.NODE_ENV;
 
     const config = require('../config/config.js');
-    expect(config.development.dialectOptions.ssl).toBeUndefined();
+    expect(config.development.dialectOptions?.ssl).toBeUndefined();
   });
 
   test('enables SSL with certificate verification by default', () => {

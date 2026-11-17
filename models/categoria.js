@@ -24,6 +24,11 @@ module.exports = (sequelize, DataTypes) => {
     descricao: {
       type: DataTypes.TEXT,
       allowNull: true
+    },
+    use_in_menu: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true
     }
   }, {
     sequelize,
