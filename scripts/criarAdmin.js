@@ -19,7 +19,7 @@ const cpfNormalizado = cpf.replace(/\D/g, '')  // Retira os caracteres
     }
     if (senha.length < 8) {
     throw new Error('A senha deve conter pelo menos 8 caracteres');
-}
+    }
 // Verifica se já existe um usuário
 const usuarioExistente = await Usuario.findOne({
   where: {
@@ -41,8 +41,7 @@ await Usuario.create({
     cpf: cpfNormalizado,
     senha: senhaHash,
     role: 'admin'
-});
-
+    });
 }
 criarAdmin()
     .then(() => {
