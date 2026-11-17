@@ -6,6 +6,7 @@ jest.mock('../models', () => ({
   },
   Produto: {
     create: jest.fn(),
+    findAll: jest.fn(),
     findAndCountAll: jest.fn(),
     findByPk: jest.fn(),
     findOne: jest.fn()
@@ -21,7 +22,8 @@ const produtoController = require('../controllers/produtoController');
 function createResponse() {
   return {
     status: jest.fn().mockReturnThis(),
-    json: jest.fn()
+    json: jest.fn(),
+    end: jest.fn()
   };
 }
 
@@ -102,5 +104,68 @@ describe('consulta de produto', () => {
     );
     expect(response.status).toHaveBeenCalledWith(201);
     expect(response.json).toHaveBeenCalledWith(savedProduct);
+  });
+
+  test('lista produtos administrativos e rejeita produto inexistente na busca por id', async () => {
+    const produtos = [{ id: 10, nome: 'Produto novo' }];
+    Produto.findAll.mockResolvedValue(produtos);
+    const response = createResponse();
+
+    await produtoController.listarAdmin({}, response);
+
+    expect(Produto.findAll).toHaveBeenCalledWith(expect.objectContaining({
+      include: [expect.objectContaining({ model: Categoria, as: 'categorias' })],
+      order: [['id', 'ASC']]
+    }));
+    expect(response.json).toHaveBeenCalledWith({ produtos });
+
+    Produto.findOne.mockResolvedValueOnce(null);
+    await expect(produtoController.buscarPorId({ params: { id: '999' } }, response))
+      .rejects.toMatchObject({ statusCode: 404, message: 'Produto não encontrado.' });
+  });
+
+  test('atualiza um produto e rejeita id inválido', async () => {
+    const categoria = { id: 2, slug: 'maquiagem', nome: 'Maquiagem' };
+    const produto = {
+      id: 22,
+      update: jest.fn().mockResolvedValue(true),
+      setCategorias: jest.fn().mockResolvedValue(true)
+    };
+
+    Categoria.findByPk.mockResolvedValue(categoria);
+    Produto.findByPk.mockResolvedValue(produto);
+    Produto.findByPk.mockResolvedValueOnce(produto);
+    const response = createResponse();
+
+    await produtoController.atualizar({
+      params: { id: '22' },
+      body: { nome: 'Produto atualizado', categoriaId: 2, descricao: 'desc', preco: 25 }
+    }, response);
+
+    expect(produto.update).toHaveBeenCalledWith(expect.objectContaining({
+      nome: 'Produto atualizado',
+      categoria: 'maquiagem'
+    }), { transaction: expect.any(Object) });
+    expect(produto.setCategorias).toHaveBeenCalledWith([categoria], { transaction: expect.any(Object) });
+    expect(response.status).toHaveBeenCalledWith(200);
+
+    await expect(produtoController.atualizar({ params: { id: 'abc' }, body: {} }, response))
+      .rejects.toMatchObject({ statusCode: 400, message: 'Identificador de produto inválido.' });
+  });
+
+  test('remove produto logicamente e rejeita produto inexistente', async () => {
+    const produto = { id: 44, update: jest.fn().mockResolvedValue(true) };
+    Produto.findByPk.mockResolvedValue(produto);
+    const response = createResponse();
+
+    await produtoController.remover({ params: { id: '44' } }, response);
+
+    expect(produto.update).toHaveBeenCalledWith({ ativo: false });
+    expect(response.status).toHaveBeenCalledWith(204);
+    expect(response.end).toHaveBeenCalled();
+
+    Produto.findByPk.mockResolvedValueOnce(null);
+    await expect(produtoController.remover({ params: { id: '99' } }, response))
+      .rejects.toMatchObject({ statusCode: 404, message: 'Produto não encontrado.' });
   });
 });
