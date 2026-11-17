@@ -32,6 +32,24 @@ module.exports = {
           { in: 'query', name: 'busca', schema: { type: 'string' } }
         ],
         responses: { 200: { description: 'Lista de produtos' } }
+      },
+      post: {
+        summary: 'Cadastra um produto',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          201: { description: 'Produto criado' },
+          403: { description: 'Apenas administradores' }
+        }
+      }
+    },
+    '/produtos/admin': {
+      get: {
+        summary: 'Lista todos os produtos para administração',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: { description: 'Lista de produtos ativos e inativos' },
+          403: { description: 'Apenas administradores' }
+        }
       }
     },
     '/produtos/{id}': {
@@ -39,9 +57,35 @@ module.exports = {
         summary: 'Consulta produto por identificador',
         parameters: [{ in: 'path', name: 'id', required: true, schema: { type: 'integer' } }],
         responses: { 200: { description: 'Produto encontrado' }, 404: { description: 'Produto não encontrado' } }
+      },
+      patch: {
+        summary: 'Atualiza dados ou estoque de um produto',
+        security: [{ bearerAuth: [] }],
+        parameters: [{ in: 'path', name: 'id', required: true, schema: { type: 'integer' } }],
+        responses: {
+          200: { description: 'Produto atualizado' },
+          403: { description: 'Apenas administradores' }
+        }
+      },
+      delete: {
+        summary: 'Desativa um produto',
+        security: [{ bearerAuth: [] }],
+        parameters: [{ in: 'path', name: 'id', required: true, schema: { type: 'integer' } }],
+        responses: {
+          204: { description: 'Produto desativado' },
+          403: { description: 'Apenas administradores' }
+        }
       }
     },
     '/pedidos': {
+      get: {
+        summary: 'Lista pedidos para administração',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: { description: 'Pedidos com cliente e itens' },
+          403: { description: 'Apenas administradores' }
+        }
+      },
       post: {
         summary: 'Cria um pedido pendente e reserva o estoque',
         security: [{ bearerAuth: [] }],
@@ -75,6 +119,79 @@ module.exports = {
           401: { description: 'Autenticação necessária' },
           404: { description: 'Produto indisponível' },
           409: { description: 'Estoque insuficiente' }
+        }
+      }
+    },
+    '/pedidos/{id}/status': {
+      patch: {
+        summary: 'Atualiza o status do pedido',
+        security: [{ bearerAuth: [] }],
+        parameters: [{ in: 'path', name: 'id', required: true, schema: { type: 'integer' } }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['status'],
+                properties: {
+                  status: { type: 'string', enum: ['pago', 'enviado', 'entregue', 'cancelado'] }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          200: { description: 'Status atualizado' },
+          403: { description: 'Apenas administradores' },
+          409: { description: 'Transição de status não permitida' }
+        }
+      }
+    },
+    '/usuarios': {
+      get: {
+        summary: 'Lista dados mínimos dos clientes',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: { description: 'Lista de clientes' },
+          403: { description: 'Apenas administradores' }
+        }
+      },
+      post: {
+        summary: 'Cadastra uma conta de cliente',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          201: { description: 'Cliente criado' },
+          403: { description: 'Apenas administradores' }
+        }
+      }
+    },
+    '/usuarios/{id}': {
+      get: {
+        summary: 'Consulta a própria conta ou dados mínimos de outro cliente',
+        security: [{ bearerAuth: [] }],
+        parameters: [{ in: 'path', name: 'id', required: true, schema: { type: 'integer' } }],
+        responses: {
+          200: { description: 'Dados da conta' },
+          403: { description: 'Sem permissão para consultar esta conta' }
+        }
+      },
+      put: {
+        summary: 'Atualiza a própria conta',
+        security: [{ bearerAuth: [] }],
+        parameters: [{ in: 'path', name: 'id', required: true, schema: { type: 'integer' } }],
+        responses: {
+          200: { description: 'Conta atualizada' },
+          403: { description: 'Apenas o próprio usuário' }
+        }
+      },
+      delete: {
+        summary: 'Exclui a própria conta',
+        security: [{ bearerAuth: [] }],
+        parameters: [{ in: 'path', name: 'id', required: true, schema: { type: 'integer' } }],
+        responses: {
+          200: { description: 'Conta excluída' },
+          403: { description: 'Apenas o próprio usuário' }
         }
       }
     }

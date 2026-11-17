@@ -4,6 +4,7 @@ const { authMiddleware, roleMiddleware } = require('../middlewares/authMiddlewar
 
 const router = express.Router();
 
+router.get('/admin', authMiddleware, roleMiddleware(['admin']), produtoController.listarAdmin);
 router.get('/', produtoController.listar);
 router.get('/:id', produtoController.buscarPorId);
 router.post('/', authMiddleware, roleMiddleware(['admin']), produtoController.criar);

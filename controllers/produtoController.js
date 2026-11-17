@@ -57,6 +57,14 @@ async function listar(req, res) {
   });
 }
 
+async function listarAdmin(req, res) {
+  const produtos = await Produto.findAll({
+    order: [['id', 'ASC']]
+  });
+
+  return res.status(200).json({ produtos });
+}
+
 // GET - Buscar produto por ID
 async function buscarPorId(req, res) {
   const produto = await Produto.findOne({
@@ -119,6 +127,7 @@ async function remover(req, res) {
 
 module.exports = {
   listar,
+  listarAdmin,
   buscarPorId,
   criar,
   atualizar,

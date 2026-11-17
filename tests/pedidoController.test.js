@@ -1,9 +1,14 @@
 jest.mock('../models', () => ({
   ItemPedido: {
-    bulkCreate: jest.fn()
+    bulkCreate: jest.fn(),
+    findAll: jest.fn()
   },
   Pedido: {
-    create: jest.fn()
+    create: jest.fn(),
+    findAll: jest.fn(),
+    findByPk: jest.fn()
+  },
+  Usuario: {
   },
   Produto: {
     findAll: jest.fn()
@@ -95,5 +100,67 @@ describe('criação de pedido', () => {
     }, {})).rejects.toMatchObject({ statusCode: 400 });
 
     expect(sequelize.transaction).not.toHaveBeenCalled();
+  });
+
+  test('lista pedidos com dados mínimos do cliente e produtos', async () => {
+    const orders = [{ id: 42, status: 'pendente' }];
+    Pedido.findAll.mockResolvedValue(orders);
+    const response = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+
+    await pedidoController.listar({}, response);
+
+    expect(Pedido.findAll).toHaveBeenCalledWith(expect.objectContaining({
+      include: expect.arrayContaining([
+        expect.objectContaining({ model: expect.anything(), as: 'usuario', attributes: ['id', 'nome', 'email'] }),
+        expect.objectContaining({ model: expect.anything(), as: 'itens' })
+      ])
+    }));
+    expect(response.status).toHaveBeenCalledWith(200);
+    expect(response.json).toHaveBeenCalledWith({ pedidos: orders });
+  });
+
+  test('cancela pedido e devolve as quantidades ao estoque', async () => {
+    const order = {
+      id: 42,
+      status: 'pendente',
+      update: jest.fn(async function update(values) {
+        Object.assign(this, values);
+      })
+    };
+    const product = {
+      id: 1,
+      estoque: 3,
+      update: jest.fn()
+    };
+    Pedido.findByPk.mockResolvedValue(order);
+    ItemPedido.findAll.mockResolvedValue([{ produtoId: 1, quantidade: 2 }]);
+    Produto.findAll.mockResolvedValue([product]);
+    const response = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+
+    await pedidoController.atualizarStatus({
+      params: { id: '42' },
+      body: { status: 'cancelado' }
+    }, response);
+
+    expect(product.update).toHaveBeenCalledWith({ estoque: 5 }, { transaction: expect.any(Object) });
+    expect(order.update).toHaveBeenCalledWith({ status: 'cancelado' }, { transaction: expect.any(Object) });
+    expect(response.json).toHaveBeenCalledWith({ pedido: { id: 42, status: 'cancelado' } });
+  });
+
+  test('recusa pular uma etapa de status do pedido', async () => {
+    Pedido.findByPk.mockResolvedValue({ id: 42, status: 'pendente' });
+
+    await expect(pedidoController.atualizarStatus({
+      params: { id: '42' },
+      body: { status: 'enviado' }
+    }, {})).rejects.toMatchObject({ statusCode: 409 });
+
+    expect(ItemPedido.findAll).not.toHaveBeenCalled();
   });
 });

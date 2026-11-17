@@ -15,9 +15,14 @@ router.get(
     usuarioController.listar
 );
 
-router.get('/:id', usuarioController.buscarPorId);
+router.get('/:id', authMiddleware, usuarioController.buscarPorId);
 
-router.post('/', usuarioController.criarUsuario);
+router.post(
+    '/',
+    authMiddleware,
+    roleMiddleware(['admin']),
+    usuarioController.criarUsuario
+);
 
 router.put(
     '/:id',

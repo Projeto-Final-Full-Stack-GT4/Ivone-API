@@ -1,5 +1,13 @@
-const { ItemPedido, Pedido, Produto, sequelize } = require('../models');
+const { ItemPedido, Pedido, Produto, Usuario, sequelize } = require('../models');
 const AppError = require('../utils/AppError');
+
+const statusTransitions = {
+  pendente: ['pago', 'cancelado'],
+  pago: ['enviado', 'cancelado'],
+  enviado: ['entregue'],
+  entregue: [],
+  cancelado: []
+};
 
 function parseItems(body) {
   if (!body || !Array.isArray(body.itens) || body.itens.length === 0) {
@@ -87,4 +95,81 @@ async function criar(req, res) {
   return res.status(201).json({ pedido });
 }
 
-module.exports = { criar };
+async function listar(req, res) {
+  const pedidos = await Pedido.findAll({
+    include: [
+      { model: Usuario, as: 'usuario', attributes: ['id', 'nome', 'email'] },
+      {
+        model: ItemPedido,
+        as: 'itens',
+        include: [{
+          model: Produto,
+          as: 'produto',
+          attributes: ['id', 'nome']
+        }]
+      }
+    ],
+    order: [['createdAt', 'DESC']]
+  });
+
+  return res.status(200).json({ pedidos });
+}
+
+async function atualizarStatus(req, res) {
+  const id = Number(req.params.id);
+  const { status } = req.body || {};
+  if (!Number.isSafeInteger(id) || id < 1) {
+    throw new AppError('Identificador de pedido inválido.');
+  }
+  if (!Object.prototype.hasOwnProperty.call(statusTransitions, status)) {
+    throw new AppError('Status de pedido inválido.');
+  }
+
+  const pedido = await sequelize.transaction(async (transaction) => {
+    const order = await Pedido.findByPk(id, {
+      transaction,
+      lock: transaction.LOCK.UPDATE
+    });
+    if (!order) {
+      throw new AppError('Pedido não encontrado.', 404);
+    }
+    if (order.status === status) {
+      return { id: order.id, status: order.status };
+    }
+    if (!statusTransitions[order.status].includes(status)) {
+      throw new AppError('Transição de status não permitida.', 409);
+    }
+
+    if (status === 'cancelado') {
+      const items = await ItemPedido.findAll({
+        where: { pedidoId: order.id },
+        transaction
+      });
+      const productIds = [...new Set(items.map((item) => item.produtoId))];
+      const products = await Produto.findAll({
+        where: { id: productIds },
+        transaction,
+        lock: transaction.LOCK.UPDATE
+      });
+      const productsById = new Map(products.map((product) => [product.id, product]));
+
+      for (const item of items) {
+        const product = productsById.get(item.produtoId);
+        if (!product) {
+          throw new AppError('Não foi possível restaurar o estoque de um item do pedido.', 409);
+        }
+        await product.update(
+          { estoque: Number(product.estoque) + Number(item.quantidade) },
+          { transaction }
+        );
+      }
+    }
+
+    await order.update({ status }, { transaction });
+    return { id: order.id, status: order.status };
+  });
+
+  return res.status(200).json({ pedido });
+}
+
+module.exports = { criar, listar, atualizarStatus };
