@@ -16,13 +16,14 @@ const ssl = sslEnabled
 const common = {
   username: process.env.DB_USERNAME || 'root',
   password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'ivone_beauty',
+  database: process.env.DB_NAME || 'ivone',
   host: process.env.DB_HOST || '127.0.0.1',
   port: Number(process.env.DB_PORT || 3306),
   dialect: process.env.DB_DIALECT || 'mysql',
   logging: false,
   dialectOptions: ssl ? { ssl } : {}
 };
+
 
 if (process.env.NODE_ENV === 'production') {
   const required = ['DB_USERNAME', 'DB_PASSWORD', 'DB_NAME', 'DB_HOST'];
@@ -37,3 +38,4 @@ module.exports = {
   test: { ...common, database: process.env.DB_NAME || 'ivone_beauty_test' },
   production: common
 };
+
